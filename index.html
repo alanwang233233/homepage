@@ -13,6 +13,50 @@
 </head>
 
 <body>
+  <!-- 头像按钮 -->
+  <div class="avatar-btn" id="avatarBtn">
+    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Vi" alt="Avatar">
+  </div>
+
+  <!-- 侧边栏 -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <button class="sidebar-close" id="sidebarClose">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="sidebar-body">
+        <div class="profile-avatar">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Vi" alt="Avatar">
+        </div>
+        <h2 class="profile-name">Vi</h2>
+        <p class="profile-bio">不积跬步，无以至千里</p>
+        <div class="profile-info">
+          <div class="info-item">
+            <span class="info-label">用户名</span>
+            <span class="info-value">@vi_user</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">邮箱</span>
+            <span class="info-value">vi@example.com</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">位置</span>
+            <span class="info-value">
+              <i class="icon icon-map-pin"></i> Shanghai, China
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">加入时间</span>
+            <span class="info-value">2024年1月</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="vi">
     <h1 class="animate-slide-in-down">Vi</h1>
     <div class="quote">
@@ -42,6 +86,11 @@
       Navigating to: <span class="relocate-location"></span>...
     </div>
   </div>
+
+  <footer class="footer animate-slide-in-up">
+    <p class="footer-copyright">&copy; 2024 Vi. All rights reserved.</p>
+    <p class="footer-version">Frontend v1.0.0</p>
+  </footer>
 
   <script src="assets/vendors/jquery-3.3.1.min.js"></script>
   <script>
@@ -96,7 +145,9 @@
         return $.when(
           animate('.location-icon', SLIDE_IN_UP),
           animate('.location-text', SLIDE_IN_DOWN)
-        );
+        ).then(function() {
+          return animate('.footer', SLIDE_IN_UP);
+        });
       }
 
       function animate(selector, properties, delay, options) {
@@ -120,6 +171,38 @@
           }
         });
       }
+
+      // 侧边栏功能
+      function initSidebar() {
+        var $sidebar = $('#sidebar');
+        var $avatarBtn = $('#avatarBtn');
+        var $sidebarClose = $('#sidebarClose');
+        var $sidebarOverlay = $('#sidebarOverlay');
+
+        // 打开侧边栏
+        $avatarBtn.on('click', function() {
+          $sidebar.addClass('active');
+          $('body').css('overflow', 'hidden');
+        });
+
+        // 关闭侧边栏
+        function closeSidebar() {
+          $sidebar.removeClass('active');
+          $('body').css('overflow', '');
+        }
+
+        $sidebarClose.on('click', closeSidebar);
+        $sidebarOverlay.on('click', closeSidebar);
+
+        // ESC键关闭
+        $(document).on('keydown', function(e) {
+          if (e.key === 'Escape' && $sidebar.hasClass('active')) {
+            closeSidebar();
+          }
+        });
+      }
+
+      initSidebar();
     });
   </script>
 </body>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>注册 - Vi</title>
+  <meta name="color-scheme" content="dark light">
+  <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css"/>
+  <link rel="stylesheet" type="text/css" href="assets/css/auth.css"/>
+</head>
+
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <a href="index.html" class="auth-logo">Vi</a>
+    </div>
+
+    <div class="auth-box terminal-box">
+      <h2 class="auth-title">创建新账号</h2>
+      
+      <div class="terminal">
+        <div class="terminal-output" id="terminalOutput">
+          <div class="terminal-line">
+            <span class="terminal-prompt">$</span>
+            <span class="terminal-text">欢迎来到 Vi 注册流程</span>
+          </div>
+        </div>
+
+        <div class="terminal-input-wrapper" id="inputWrapper" style="display: none;">
+          <span class="terminal-prompt">$</span>
+          <span class="terminal-question" id="question"></span>
+          <input type="text" class="terminal-input" id="terminalInput" autocomplete="off">
+          <span class="terminal-cursor">_</span>
+        </div>
+      </div>
+
+      <div class="terminal-actions">
+        <button class="btn btn-primary" id="startBtn">开始注册</button>
+        <button class="btn btn-secondary" id="resetBtn" style="display: none;">重新开始</button>
+      </div>
+
+      <div class="auth-footer">
+        已有账号？<a href="login.html" class="link-text">立即登录</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/vendors/jquery-3.3.1.min.js"></script>
+  <script>
+    $(function() {
+      var questions = [
+        { key: 'username', text: '请输入用户名: ', type: 'text', validate: function(val) { return val.length >= 3; } },
+        { key: 'email', text: '请输入邮箱地址: ', type: 'email', validate: function(val) { return /\S+@\S+\.\S+/.test(val); } },
+        { key: 'password', text: '请设置密码 (至少8位): ', type: 'password', validate: function(val) { return val.length >= 8; } },
+        { key: 'confirmPassword', text: '请再次输入密码: ', type: 'password', validate: function(val) { return val === userData.password; } }
+      ];
+
+      var currentQuestion = 0;
+      var userData = {};
+      var isProcessing = false;
+
+      $('#startBtn').on('click', function() {
+        $(this).hide();
+        startRegistration();
+      });
+
+      $('#resetBtn').on('click', function() {
+        location.reload();
+      });
+
+      function startRegistration() {
+        currentQuestion = 0;
+        userData = {};
+        showNextQuestion();
+      }
+
+      function showNextQuestion() {
+        if (currentQuestion >= questions.length) {
+          completeRegistration();
+          return;
+        }
+
+        var q = questions[currentQuestion];
+        $('#question').text(q.text);
+        $('#terminalInput').attr('type', q.type).val('').focus();
+        $('#inputWrapper').show();
+        isProcessing = false;
+      }
+
+      function addOutputLine(text, isError) {
+        var className = isError ? 'terminal-error' : 'terminal-text';
+        var line = $('<div class="terminal-line"><span class="terminal-prompt">$</span><span class="' + className + '">' + text + '</span></div>');
+        $('#terminalOutput').append(line);
+        scrollToBottom();
+      }
+
+      function addInputLine(question, answer, isPassword) {
+        var display = isPassword ? '•'.repeat(answer.length) : answer;
+        var line = $('<div class="terminal-line"><span class="terminal-prompt">$</span><span class="terminal-text">' + question + display + '</span></div>');
+        $('#terminalOutput').append(line);
+        scrollToBottom();
+      }
+
+      function scrollToBottom() {
+        var output = document.getElementById('terminalOutput');
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function completeRegistration() {
+        $('#inputWrapper').hide();
+        addOutputLine('正在创建账号...', false);
+        
+        setTimeout(function() {
+          addOutputLine('✓ 账号创建成功！', false);
+          addOutputLine('用户名: ' + userData.username, false);
+          addOutputLine('邮箱: ' + userData.email, false);
+          addOutputLine('', false);
+          addOutputLine('即将跳转到登录页面...', false);
+          
+          $('#resetBtn').show();
+          
+          setTimeout(function() {
+            // window.location.href = 'login.html';
+            alert('注册功能待实现，将跳转到登录页面');
+          }, 2000);
+        }, 1000);
+      }
+
+      $('#terminalInput').on('keydown', function(e) {
+        if (e.key === 'Enter' && !isProcessing) {
+          e.preventDefault();
+          var value = $(this).val().trim();
+          var q = questions[currentQuestion];
+
+          if (!value) {
+            addOutputLine('✗ 输入不能为空', true);
+            return;
+          }
+
+          if (!q.validate(value)) {
+            var errorMsg = '✗ ';
+            if (q.key === 'username') errorMsg += '用户名至少需要3个字符';
+            else if (q.key === 'email') errorMsg += '请输入有效的邮箱地址';
+            else if (q.key === 'password') errorMsg += '密码至少需要8个字符';
+            else if (q.key === 'confirmPassword') errorMsg += '两次输入的密码不一致';
+            
+            addOutputLine(errorMsg, true);
+            return;
+          }
+
+          isProcessing = true;
+          userData[q.key] = value;
+          
+          addInputLine(q.text, value, q.type === 'password');
+          addOutputLine('✓ 验证通过', false);
+          
+          currentQuestion++;
+          
+          setTimeout(function() {
+            showNextQuestion();
+          }, 300);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>两步验证 - Vi</title>
+  <meta name="color-scheme" content="dark light">
+  <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css"/>
+  <link rel="stylesheet" type="text/css" href="assets/css/auth.css"/>
+</head>
+
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <a href="index.html" class="auth-logo">Vi</a>
+    </div>
+
+    <div class="auth-box">
+      <h2 class="auth-title">两步验证</h2>
+      <p class="auth-description">请输入验证器应用中的6位验证码</p>
+      
+      <form class="auth-form" id="twoFactorForm">
+        <div class="code-input-group">
+          <input type="text" class="code-input" maxlength="1" data-index="0">
+          <input type="text" class="code-input" maxlength="1" data-index="1">
+          <input type="text" class="code-input" maxlength="1" data-index="2">
+          <input type="text" class="code-input" maxlength="1" data-index="3">
+          <input type="text" class="code-input" maxlength="1" data-index="4">
+          <input type="text" class="code-input" maxlength="1" data-index="5">
+        </div>
+
+        <button type="submit" class="btn btn-primary">验证</button>
+      </form>
+
+      <div class="auth-options">
+        <a href="#" class="link-text" id="useBackupCode">使用备用代码</a>
+        <a href="login.html" class="link-text">返回登录</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/vendors/jquery-3.3.1.min.js"></script>
+  <script>
+    $(function() {
+      var $inputs = $('.code-input');
+
+      // 自动聚焦第一个输入框
+      $inputs.first().focus();
+
+      // 输入时自动跳转到下一个输入框
+      $inputs.on('input', function() {
+        var $this = $(this);
+        var index = $this.data('index');
+        var value = $this.val();
+
+        if (value.length === 1 && index < 5) {
+          $inputs.eq(index + 1).focus();
+        }
+
+        // 自动提交
+        if (index === 5 && value.length === 1) {
+          var code = '';
+          $inputs.each(function() {
+            code += $(this).val();
+          });
+          if (code.length === 6) {
+            setTimeout(function() {
+              $('#twoFactorForm').submit();
+            }, 200);
+          }
+        }
+      });
+
+      // 退格键处理
+      $inputs.on('keydown', function(e) {
+        var $this = $(this);
+        var index = $this.data('index');
+
+        if (e.key === 'Backspace' && !$this.val() && index > 0) {
+          $inputs.eq(index - 1).focus();
+        }
+      });
+
+      // 粘贴处理
+      $inputs.on('paste', function(e) {
+        e.preventDefault();
+        var pastedData = e.originalEvent.clipboardData.getData('text');
+        var digits = pastedData.replace(/\D/g, '').slice(0, 6);
+        
+        digits.split('').forEach(function(digit, i) {
+          $inputs.eq(i).val(digit);
+        });
+
+        if (digits.length === 6) {
+          $inputs.eq(5).focus();
+        }
+      });
+
+      $('#twoFactorForm').on('submit', function(e) {
+        e.preventDefault();
+        var code = '';
+        $inputs.each(function() {
+          code += $(this).val();
+        });
+
+        if (code.length === 6) {
+          alert('2FA验证功能待实现\n验证码: ' + code);
+          // window.location.href = 'account.html';
+        }
+      });
+
+      $('#useBackupCode').on('click', function(e) {
+        e.preventDefault();
+        alert('备用代码功能待实现');
+      });
+    });
+  </script>
+</body>
+</html>
